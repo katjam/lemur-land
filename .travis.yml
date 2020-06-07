@@ -3,6 +3,7 @@ elm:
   - latest-0.19.1
 elm-test: 0.19.1
 elm-format: 0.8.2
+node_js: 14
 before_install: npm install parcel-bundler
 script:
   - npm test
