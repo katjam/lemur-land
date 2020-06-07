@@ -2,19 +2,15 @@ module Main exposing (main)
 
 import Browser
 import Dict
+import HexTools exposing (..)
 import Hexagons.Hex exposing (..)
 import Hexagons.Layout exposing (..)
 import Hexagons.Map exposing (..)
 import Html exposing (..)
-import Html.Attributes
-import Html.Events
-import Json.Decode as Json
 import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Svg.Events exposing (..)
-import Svg.Lazy exposing (lazy, lazy2, lazy3)
-import Task
 
 
 type alias Flags =
@@ -46,6 +42,16 @@ init _ =
     )
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+viewDocument : Model -> Browser.Document Msg
+viewDocument model =
+    { title = "Lemur Land", body = [ view model ] }
+
+
 type Msg
     = SetGreen Hash
 
@@ -57,17 +63,7 @@ update msg model =
             ( { model | forestCells = model.forestCells ++ [ cell ] }, Cmd.none )
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-
-viewDocument : Model -> Browser.Document Msg
-viewDocument model =
-    { title = "Lemur Land", body = [ view model ] }
-
-
-renderHex model =
+renderBoard model =
     let
         toSvg : Hash -> String -> Svg Msg
         toSvg hexLocation cornersCoords =
@@ -102,61 +98,6 @@ renderHex model =
             (List.map (pointsToString << mapPolygonCorners << getCell) (Dict.toList model.map))
 
 
-cellWidth =
-    20.0
-
-
-cellHeight =
-    20.0
-
-
-layout =
-    { orientation = Hexagons.Layout.orientationLayoutPointy
-    , size = ( 20.0, 20.0 )
-    , origin = ( 0.0, 0.0 )
-    }
-
-
-viewBoxStringCoords : String
-viewBoxStringCoords =
-    String.fromFloat (-cellWidth + cellWidth * 0.1)
-        ++ " "
-        ++ String.fromFloat -(cellHeight + 0)
-        ++ " "
-        ++ String.fromInt 500
-        ++ " "
-        ++ String.fromInt 500
-
-
-{-| Helper to convert points to SVG string coordinates
--}
-pointsToString : List Point -> String
-pointsToString points =
-    String.join " " (List.map pointToStringCoords points)
-
-
-{-| Helper to convert points to SVG string coordinates
--}
-pointToStringCoords : Point -> String
-pointToStringCoords ( x, y ) =
-    String.fromFloat x ++ "," ++ String.fromFloat y
-
-
-getCell : ( Hash, Hex ) -> Hex
-getCell ( key, hex ) =
-    hex
-
-
-getCellKey : ( Hash, Hex ) -> Hash
-getCellKey ( key, hex ) =
-    key
-
-
-mapPolygonCorners : Hex -> List Point
-mapPolygonCorners =
-    polygonCorners layout
-
-
 view : Model -> Html Msg
 view model =
     div []
@@ -168,6 +109,6 @@ view model =
                 , Svg.Attributes.width "500px"
                 , Svg.Attributes.height "500px"
                 ]
-                [ renderHex model ]
+                [ renderBoard model ]
             ]
         ]
